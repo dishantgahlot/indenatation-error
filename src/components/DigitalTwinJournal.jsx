@@ -240,7 +240,7 @@ export default function DigitalTwinJournal({
     return lifestyleScore || 42;
   });
 
-  const [mobileTab, setMobileTab] = useState('profile'); // 'profile' | 'habits'
+  const [mobileTab, setMobileTab] = useState('habits'); // 'habits' | 'profile'
 
   // Sync if props update externally
   useEffect(() => {
@@ -951,21 +951,10 @@ export default function DigitalTwinJournal({
       </div>
 
       {/* MOBILE JOURNAL VIEW (< lg) */}
-      <div className="lg:hidden relative z-20 w-[94vw] max-w-[430px] sm:max-w-[500px] h-[84vh] max-h-[720px] bg-[#f7eedc] border-2 border-[#8c6b4f]/70 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col justify-between p-3.5 overflow-y-auto parchment-scroll select-none">
+      <div className="lg:hidden relative z-20 w-[94vw] max-w-[430px] sm:max-w-[500px] h-[86dvh] max-h-[740px] bg-[#f7eedc] border-2 border-[#8c6b4f]/70 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col justify-between p-3 sm:p-4 overflow-y-auto parchment-scroll">
         
         {/* Mobile Header Tabs */}
         <div className="flex items-center justify-center p-1 rounded-full bg-[#ebd8c0]/90 border border-[#8e6e53]/40 mb-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => setMobileTab('profile')}
-            className={`flex-1 py-1.5 px-3 rounded-full text-xs font-serif font-bold transition-all cursor-pointer ${
-              mobileTab === 'profile'
-                ? 'bg-[#2b180d] text-[#faedd4] shadow-xs'
-                : 'text-[#5c3a22] hover:text-[#2b180d]'
-            }`}
-          >
-            📖 Explorer Profile
-          </button>
           <button
             type="button"
             onClick={() => setMobileTab('habits')}
@@ -977,24 +966,35 @@ export default function DigitalTwinJournal({
           >
             📝 Daily Habits ({completedCount}/6)
           </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab('profile')}
+            className={`flex-1 py-1.5 px-3 rounded-full text-xs font-serif font-bold transition-all cursor-pointer ${
+              mobileTab === 'profile'
+                ? 'bg-[#2b180d] text-[#faedd4] shadow-xs'
+                : 'text-[#5c3a22] hover:text-[#2b180d]'
+            }`}
+          >
+            📖 Explorer Profile
+          </button>
         </div>
 
         {/* Tab 1: Profile & Avatar */}
         {mobileTab === 'profile' ? (
           <div className="flex-1 flex flex-col justify-between items-center text-center py-1">
             <div className="w-full">
-              <h1 className="font-handwriting text-3xl font-bold text-[#24130a] leading-tight">
+              <h1 className="font-handwriting text-2xl font-bold text-[#24130a] leading-tight">
                 Hello, {displayName}!
               </h1>
-              <div className="font-handwriting text-xl font-bold text-[#2d180d] mt-0.5">
-                Let's build your Digital Twin
+              <div className="font-handwriting text-base font-bold text-[#2d180d] mt-0.5">
+                Your Digital Twin Character
               </div>
             </div>
 
-            {/* Avatar Card */}
+            {/* Avatar Card (Proportional, Elegantly framed) */}
             <div 
               onClick={openCharacterModal}
-              className="relative w-full aspect-[16/10] max-h-[220px] rounded-xl overflow-hidden border-2 border-[#8c6b4f]/40 shadow-md my-2 cursor-pointer bg-[#e8dcce]"
+              className="relative w-full aspect-[16/9.5] max-h-[190px] rounded-xl overflow-hidden border-2 border-[#8c6b4f]/40 shadow-md my-2 cursor-pointer bg-[#e8dcce] group"
               title="Tap to change avatar"
             >
               <img 
@@ -1004,25 +1004,25 @@ export default function DigitalTwinJournal({
                     : (activeUser.avatarFull || activeUser.avatarThumb || 'https://api.dicebear.com/7.x/adventurer/svg?seed=Alex&backgroundColor=b6e3f4')
                 } 
                 alt={displayName} 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-2.5 flex items-end justify-between">
                 <div className="text-left">
                   <span className="text-[10px] font-sans font-bold text-[#fce8ba] uppercase block">
                     {activeUser.title || characterMedia.title || 'The Mountain Explorer'}
                   </span>
-                  <span className="font-handwriting text-lg font-black text-white leading-none">
+                  <span className="font-handwriting text-base font-black text-white leading-none">
                     {displayName}
                   </span>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-white text-[#24130a] text-[11px] font-bold font-sans shadow-xs flex items-center gap-1">
-                  <span>✏️</span>
+                <span className="px-2.5 py-1 rounded-full bg-amber-400 text-neutral-950 text-[10px] font-black font-sans shadow-xs flex items-center gap-1">
+                  <span>🎨</span>
                   <span>Change</span>
                 </span>
               </div>
             </div>
 
-            <p className="font-handwriting text-sm font-bold text-[#351b0a] leading-snug px-2">
+            <p className="font-handwriting text-xs sm:text-sm font-bold text-[#351b0a] leading-snug px-2">
               {isDay1Complete 
                 ? "✨ Day 1 trajectory calibrated! All 6 core lifestyle habits active and synchronized."
                 : "Track all 6 daily habits to complete Day 1, explore your future self, and start your streak."}
@@ -1033,21 +1033,62 @@ export default function DigitalTwinJournal({
               onClick={() => setMobileTab('habits')}
               className="w-full py-2.5 mt-2 rounded-full bg-[#24130a] hover:bg-[#3d2415] text-[#f7eed6] text-xs font-serif font-black uppercase tracking-wider shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95"
             >
-              <span>Next: View & Log Habits</span>
+              <span>View & Log Habits</span>
               <span>→</span>
             </button>
           </div>
         ) : (
           /* Tab 2: Daily Lifestyle Habits */
           <div className="flex-1 flex flex-col justify-between py-1">
+            {/* Top Compact Identity & Streak Banner */}
+            <div className="p-2 rounded-xl bg-[#ebd8c0]/70 border border-[#8e6e53]/40 flex items-center justify-between gap-2 mb-1.5 shadow-2xs">
+              <div 
+                onClick={openCharacterModal}
+                className="flex items-center gap-2.5 cursor-pointer group min-w-0"
+                title="Tap to change avatar"
+              >
+                <div className="relative w-9 h-9 rounded-full overflow-hidden border-2 border-[#8c6b4f] bg-[#e8dcce] shadow-xs shrink-0">
+                  <img 
+                    src={
+                      (activeUser.isCustom && activeUser.customAvatarUrl)
+                        ? activeUser.customAvatarUrl
+                        : (activeUser.avatarThumb || activeUser.avatarFull || 'https://api.dicebear.com/7.x/adventurer/svg?seed=Alex&backgroundColor=b6e3f4')
+                    } 
+                    alt={displayName} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                  />
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-white" />
+                </div>
+                <div className="text-left min-w-0">
+                  <span className="font-serif font-black text-xs text-[#24130a] block truncate">
+                    {displayName}
+                  </span>
+                  <span className="text-[10px] font-sans font-bold text-[#7d5e45] block truncate">
+                    {activeUser.title || characterMedia.title || 'Mountain Explorer'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="px-2 py-0.5 rounded-full bg-[#24130a] text-[#fce8ba] text-[10px] font-sans font-black tracking-wider uppercase">
+                  {isDay1Complete ? '🔥 1d Streak' : '⭐ Day 1'}
+                </span>
+                <button
+                  type="button"
+                  onClick={openCharacterModal}
+                  className="p-1 text-[#5c3a22] hover:text-[#24130a] text-xs font-bold"
+                  title="Change Avatar"
+                >
+                  🎨
+                </button>
+              </div>
+            </div>
+
             <div className="text-center">
-              <h2 className="font-handwriting text-2xl font-bold text-[#24130a] leading-tight">
-                Your Current Lifestyle
-              </h2>
               {/* Daily Field Log Station */}
               <div 
                 onClick={() => openDailyLog(null)}
-                className="w-full mt-1.5 px-3 py-1.5 rounded-xl border border-[#8e6e53]/35 bg-[#ebd8c0]/40 flex items-center justify-between cursor-pointer active:scale-98"
+                className="w-full px-3 py-1.5 rounded-xl border border-[#8e6e53]/35 bg-[#ebd8c0]/50 hover:bg-[#ebd8c0]/80 flex items-center justify-between cursor-pointer active:scale-98 transition-all"
               >
                 <div className="flex items-center gap-2 text-left">
                   <span className="text-sm">{isDay1Complete ? '✓' : '🖋️'}</span>
@@ -1060,7 +1101,7 @@ export default function DigitalTwinJournal({
                     </span>
                   </div>
                 </div>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#24130a] text-[#f7eed6] text-[10px] font-sans font-bold">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#24130a] text-[#f7eed6] text-[10px] font-sans font-bold shadow-2xs">
                   {isDay1Complete ? 'Edit' : 'Log Today'}
                 </span>
               </div>

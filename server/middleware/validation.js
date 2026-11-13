@@ -38,13 +38,13 @@ export function validate(schema, source = 'body') {
 export const authSchemas = {
   register: z.object({
     name: z.string().min(1, 'Name is required').max(100, 'Name too long').optional(),
-    email: z.string().email('Invalid email format').toLowerCase().trim(),
+    email: z.string().transform(v => (v || '').trim().toLowerCase()).pipe(z.string().email('Invalid email format')),
     password: z.string().min(6, 'Password must be at least 6 characters').max(128, 'Password too long'),
     character_id: z.string().min(1).max(50).optional()
   }),
 
   login: z.object({
-    email: z.string().email('Invalid email format').toLowerCase().trim(),
+    email: z.string().transform(v => (v || '').trim().toLowerCase()).pipe(z.string().email('Invalid email format')),
     password: z.string().min(1, 'Password is required')
   }),
 

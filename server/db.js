@@ -10,7 +10,8 @@ const { Pool } = pg;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DB_FILE = path.join(__dirname, 'data/store.json');
+const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NOW_REGION);
+const DB_FILE = isServerless ? path.join('/tmp', 'store.json') : path.join(__dirname, 'data/store.json');
 
 // --- Mongoose Schemas (Used when MONGODB_URI is provided) ---
 const UserMongooseSchema = new mongoose.Schema({
@@ -188,54 +189,61 @@ class SupabaseDatabase {
 
   readLocal() {
     try {
-      const DB_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'data/store.json');
       if (!fs.existsSync(DB_FILE)) {
         return defaultSeedData();
       }
       const data = fs.readFileSync(DB_FILE, 'utf-8');
       return JSON.parse(data);
     } catch (e) {
-      console.error('[DB] Error reading local DB:', e);
       return defaultSeedData();
     }
   }
 
   writeLocal(data) {
     try {
-      const DB_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'data/store.json');
+      const dir = path.dirname(DB_FILE);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
       fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
       return true;
     } catch (e) {
-      console.error('[DB] Error writing local DB:', e);
       return false;
     }
   }
 
   // --- User Methods ---
   async findUserByEmail(email) {
-    if (this.isConnected && this.pool) {
+    if (!email) return null;
+    const normalizedEmail = email.toLowerCase().trim();
+    if (this.pool) {
       try {
         const result = await this.pool.query(
-          'SELECT * FROM users WHERE LOWER(email) = LOWER($1)',
-          [email]
+          'SELECT * FROM users WHERE LOWER(TRIM(email)) = LOWER(TRIM($1))',
+          [normalizedEmail]
         );
-        if (result.rows.length > 0) return result.rows[0];
+        if (result.rows.length > 0) {
+          this.isConnected = true;
+          return result.rows[0];
+        }
       } catch (err) {
         console.error('[DB-Supabase] Error finding user by email:', err.message);
       }
     }
     // Fallback to local
     const db = this.readLocal();
-    const normalizedEmail = email.toLowerCase().trim();
-    return (db.users || []).find(u => u.email && u.email.toLowerCase() === normalizedEmail) || null;
+    return (db.users || []).find(u => u.email && u.email.toLowerCase().trim() === normalizedEmail) || null;
   }
 
   async findUserById(id) {
     if (!id || id === 'guest') return null;
-    if (this.isConnected && this.pool) {
+    if (this.pool) {
       try {
         const result = await this.pool.query('SELECT * FROM users WHERE id = $1', [id]);
-        if (result.rows.length > 0) return result.rows[0];
+        if (result.rows.length > 0) {
+          this.isConnected = true;
+          return result.rows[0];
+        }
       } catch (err) {
         console.error('[DB-Supabase] Error finding user by id:', err.message);
       }
@@ -261,7 +269,7 @@ class SupabaseDatabase {
     };
 
     // Write to Supabase if connected
-    if (this.isConnected && this.pool) {
+    if (this.pool) {
       try {
         await this.pool.query(
           `INSERT INTO users (id, name, email, password_hash, character_id, title,
@@ -271,6 +279,7 @@ class SupabaseDatabase {
            newUser.title, newUser.avatar_thumb, newUser.avatar_full, newUser.custom_avatar_url,
            newUser.is_custom, newUser.created_at, newUser.updated_at]
         );
+        this.isConnected = true;
       } catch (err) {
         console.error('[DB-Supabase] Error creating user:', err.message);
       }
@@ -595,6 +604,7 @@ const defaultSeedData = () => {
 
 class UnifiedDatabase {
   constructor() {
+    this.memoryStore = defaultSeedData();
     this.dbMode = 'local'; // 'supabase', 'mongodb', or 'local'
     this.isMongoConnected = false;
     this.supabaseDb = null;
@@ -604,16 +614,16 @@ class UnifiedDatabase {
 
   init() {
     try {
-      if (!fs.existsSync(path.dirname(DB_FILE))) {
-        fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
+      const dir = path.dirname(DB_FILE);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
       }
       if (!fs.existsSync(DB_FILE)) {
-        fs.writeFileSync(DB_FILE, JSON.stringify(defaultSeedData(), null, 2), 'utf-8');
+        fs.writeFileSync(DB_FILE, JSON.stringify(this.memoryStore, null, 2), 'utf-8');
       } else {
         const data = this.read();
         let changed = false;
         if (!data.users || data.users.length === 0) {
-          const defaultHash = bcrypt.hashSync('password123', 10);
           data.users = defaultSeedData().users;
           changed = true;
         }
@@ -622,7 +632,7 @@ class UnifiedDatabase {
         }
       }
     } catch (e) {
-      console.error('[DB] Failed to initialize local JSON database:', e);
+      // In serverless / read-only filesystem, silently keep memoryStore
     }
   }
 
@@ -633,13 +643,9 @@ class UnifiedDatabase {
       console.log('🔄 [DB] Attempting Supabase/PostgreSQL connection via DATABASE_URL...');
       try {
         this.supabaseDb = new SupabaseDatabase();
-        // Wait a bit for connection to establish
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        if (this.supabaseDb.isConnected) {
-          this.dbMode = 'supabase';
-          console.log('✅ [DB] Mode: Supabase/PostgreSQL (Primary)');
-          return;
-        }
+        this.dbMode = 'supabase';
+        console.log('✅ [DB] Mode: Supabase/PostgreSQL (Active)');
+        return;
       } catch (err) {
         console.warn('⚠️ [DB] Supabase connection failed:', err.message);
       }
@@ -677,51 +683,52 @@ class UnifiedDatabase {
       }
     }
 
-    // Fallback: Local JSON
+    // Fallback: Local JSON / In-Memory
     this.dbMode = 'local';
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('💾 [DB] Mode: Local Persistent JSON Database Engine');
-    console.log('📍 File: server/data/store.json');
-    if (!databaseUrl || databaseUrl.trim() === '') {
-      console.log('ℹ️  To connect to Supabase, add DATABASE_URL to .env');
-    }
-    if (!mongoUri || mongoUri.trim() === '') {
-      console.log('ℹ️  To connect to MongoDB Atlas, add MONGODB_URI to .env');
-    }
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💾 [DB] Mode: Persistent Storage Engine active.');
   }
 
   read() {
     try {
-      if (!fs.existsSync(DB_FILE)) {
-        this.init();
+      if (fs.existsSync(DB_FILE)) {
+        const data = fs.readFileSync(DB_FILE, 'utf-8');
+        const parsed = JSON.parse(data);
+        if (parsed && typeof parsed === 'object') {
+          this.memoryStore = parsed;
+          return parsed;
+        }
       }
-      const data = fs.readFileSync(DB_FILE, 'utf-8');
-      return JSON.parse(data);
     } catch (e) {
-      console.error('[DB] Error reading DB:', e);
-      return defaultSeedData();
+      // In serverless cold starts or read-only FS, silently use memoryStore
     }
+    return this.memoryStore || defaultSeedData();
   }
 
   write(data) {
+    if (!data) return false;
+    this.memoryStore = data;
     try {
+      const dir = path.dirname(DB_FILE);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
       fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
       return true;
     } catch (e) {
-      console.error('[DB] Error writing DB:', e);
-      return false;
+      return true;
     }
   }
 
   // --- User Authentication Methods ---
   async findUserByEmail(email) {
     if (!email) return null;
+    const normalizedEmail = email.toLowerCase().trim();
 
     // Try Supabase first
-    if (this.dbMode === 'supabase' && this.supabaseDb?.isConnected) {
+    if ((this.dbMode === 'supabase' || this.supabaseDb?.pool) && this.supabaseDb) {
       try {
-        return await this.supabaseDb.findUserByEmail(email);
+        const user = await this.supabaseDb.findUserByEmail(normalizedEmail);
+        if (user) return user;
       } catch (err) {
         console.error('[DB] Supabase findUserByEmail error:', err.message);
       }
@@ -730,26 +737,26 @@ class UnifiedDatabase {
     // Try MongoDB
     if (this.dbMode === 'mongodb' && this.isMongoConnected && MongooseUser) {
       try {
-        const user = await MongooseUser.findOne({ email: email.toLowerCase().trim() });
+        const user = await MongooseUser.findOne({ email: normalizedEmail });
         if (user) return user.toObject();
       } catch (err) {
         console.error('[DB] MongoDB findUserByEmail error:', err.message);
       }
     }
 
-    // Fallback to local JSON
+    // Fallback to local JSON / memory store
     const db = this.read();
-    const normalizedEmail = email.toLowerCase().trim();
-    return (db.users || []).find(u => u.email && u.email.toLowerCase() === normalizedEmail) || null;
+    return (db.users || []).find(u => u.email && u.email.toLowerCase().trim() === normalizedEmail) || null;
   }
 
   async findUserById(id) {
     if (!id || id === 'guest') return null;
 
     // Try Supabase first
-    if (this.dbMode === 'supabase' && this.supabaseDb?.isConnected) {
+    if ((this.dbMode === 'supabase' || this.supabaseDb?.pool) && this.supabaseDb) {
       try {
-        return await this.supabaseDb.findUserById(id);
+        const user = await this.supabaseDb.findUserById(id);
+        if (user) return user;
       } catch (err) {
         console.error('[DB] Supabase findUserById error:', err.message);
       }
@@ -792,15 +799,15 @@ class UnifiedDatabase {
       updated_at: now
     };
 
-    // Write to local JSON first (always) - fresh user has 0 logs
+    // Write to memory / local JSON
     const db = this.read();
     if (!db.users) db.users = [];
     db.users.push(newUser);
     if (!db.habit_daily_logs) db.habit_daily_logs = [];
     this.write(db);
 
-    // Write to Supabase if connected
-    if (this.dbMode === 'supabase' && this.supabaseDb?.isConnected) {
+    // Write to Supabase if available
+    if ((this.dbMode === 'supabase' || this.supabaseDb?.pool) && this.supabaseDb) {
       try {
         await this.supabaseDb.createUser({ name, email, password, character_id, title, avatar_thumb, avatar_full });
       } catch (err) {
@@ -835,8 +842,8 @@ class UnifiedDatabase {
       updatedUser = db.users[index];
     }
 
-    // Update Supabase if connected
-    if (this.dbMode === 'supabase' && this.supabaseDb?.isConnected) {
+    // Update Supabase if available
+    if ((this.dbMode === 'supabase' || this.supabaseDb?.pool) && this.supabaseDb) {
       try {
         await this.supabaseDb.updateUser(id, updates);
       } catch (err) {
@@ -854,9 +861,10 @@ class UnifiedDatabase {
   // --- Habit Logs Methods ---
   async getRecentLogs(limit = 7, userId = 'default_user') {
     // Try Supabase first
-    if (this.dbMode === 'supabase' && this.supabaseDb?.isConnected) {
+    if ((this.dbMode === 'supabase' || this.supabaseDb?.pool) && this.supabaseDb) {
       try {
-        return await this.supabaseDb.getRecentLogs(limit, userId);
+        const logs = await this.supabaseDb.getRecentLogs(limit, userId);
+        if (logs) return logs;
       } catch (err) {
         console.error('[DB] Supabase getRecentLogs error:', err.message);
       }
@@ -930,7 +938,7 @@ class UnifiedDatabase {
     this.write(db);
 
     // Write to Supabase if connected
-    if (this.dbMode === 'supabase' && this.supabaseDb?.isConnected) {
+    if ((this.dbMode === 'supabase' || this.supabaseDb?.pool) && this.supabaseDb) {
       try {
         await this.supabaseDb.saveDailyLog(logData, userId);
       } catch (err) {
@@ -986,7 +994,7 @@ class UnifiedDatabase {
     this.write(db);
 
     // Write to Supabase if connected
-    if (this.dbMode === 'supabase' && this.supabaseDb?.isConnected) {
+    if ((this.dbMode === 'supabase' || this.supabaseDb?.pool) && this.supabaseDb) {
       try {
         return await this.supabaseDb.saveBatchLogs(logsArray, userId);
       } catch (err) {
@@ -1070,7 +1078,7 @@ class UnifiedDatabase {
     this.write(db);
 
     // Write to Supabase if connected
-    if (this.dbMode === 'supabase' && this.supabaseDb?.isConnected) {
+    if ((this.dbMode === 'supabase' || this.supabaseDb?.pool) && this.supabaseDb) {
       try {
         await this.supabaseDb.setCachedLetter(cacheKey, letterData, userId);
       } catch (err) {

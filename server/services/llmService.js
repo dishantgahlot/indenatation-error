@@ -63,10 +63,6 @@ export class LLMService {
    * Generates or retrieves cached Future-Self letter based on exact dynamic metrics
    */
   static async generateFutureLetter(userName = 'Dishant', scenarioType = 'improved', metrics = {}, forceRefresh = false, userId = 'usr_default_dishant') {
-    // Write to file to prove function execution
-    const fs = await import('fs');
-    fs.writeFileSync('C:/Users/disha/OneDrive/Desktop/indenatation error/llm_debug.txt', 'FUNCTION EXECUTED: ' + new Date().toISOString() + '\n', { flag: 'a' });
-
     // 1. Sanitize & extract complete numerical metrics
     const sleep = Number(metrics.sleep !== undefined ? metrics.sleep : 5.2);
     const study = Number(metrics.study !== undefined ? metrics.study : 2.1);

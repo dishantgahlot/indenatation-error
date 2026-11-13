@@ -330,8 +330,6 @@ export function UserProvider({ children }) {
       // Clean, minimal registration notification
       showNotification(`Account created for ${u.name || preset.name}`, '', 'success');
 
-      // Open Avatar Selection modal for fresh character customization
-      setIsCharacterModalOpen(true);
       window.dispatchEvent(new CustomEvent('future-you-habits-updated', { detail: { userId: u.id, refresh: true } }));
     }
     return data;
