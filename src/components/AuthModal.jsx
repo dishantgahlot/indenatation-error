@@ -56,11 +56,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onNa
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/75 animate-in fade-in duration-200 select-none font-sans">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-200 select-none font-sans">
       
       {/* Luxury Vintage Archival Card */}
       <div 
-        className="relative w-full max-w-[470px] rounded-[28px] p-6 sm:p-8 bg-gradient-to-b from-[#fdfbf7] via-[#f7f2e8] to-[#eee4d0] text-[#2c180c] border-2 border-[#d4af37]/70 shadow-[0_30px_90px_rgba(20,10,4,0.7),0_0_50px_rgba(212,175,55,0.18)] overflow-hidden animate-in zoom-in-95 duration-200"
+        className="relative w-[92vw] max-w-[460px] max-h-[90dvh] overflow-y-auto parchment-scroll rounded-[24px] sm:rounded-[28px] p-5 sm:p-7 bg-gradient-to-b from-[#fdfbf7] via-[#f7f2e8] to-[#eee4d0] text-[#2c180c] border-2 border-[#d4af37]/70 shadow-[0_30px_90px_rgba(20,10,4,0.7),0_0_50px_rgba(212,175,55,0.18)] animate-in zoom-in-95 duration-200"
       >
         {/* Top Gold Foil Specular Filament */}
         <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-transparent via-[#f5d78e] to-transparent pointer-events-none" />
@@ -69,18 +69,18 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onNa
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4.5 right-4.5 w-8 h-8 rounded-full bg-[#ebd8c0]/60 hover:bg-[#ebd8c0] border border-[#b59976]/70 text-[#3d2414] hover:text-[#2c180c] font-bold text-sm flex items-center justify-center cursor-pointer shadow-xs transition-all hover:scale-105 active:scale-95"
+          className="absolute top-3.5 right-3.5 sm:top-4.5 sm:right-4.5 z-30 w-8 h-8 rounded-full bg-[#ebd8c0]/80 hover:bg-[#ebd8c0] border border-[#b59976]/70 text-[#3d2414] hover:text-[#2c180c] font-bold text-sm flex items-center justify-center cursor-pointer shadow-xs transition-all hover:scale-105 active:scale-95"
           title="Close dialog"
         >
           ✕
         </button>
 
         {/* Header Medallion & Branding */}
-        <div className="flex flex-col items-center text-center mb-5">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#f8dfad] via-[#e5b352] to-[#b87c28] border-2 border-[#fff3d4] shadow-[0_4px_16px_rgba(184,124,40,0.35)] flex items-center justify-center mb-2.5 ring-4 ring-[#eedab4]/40">
-            <span className="text-2xl drop-shadow-xs">🧭</span>
+        <div className="flex flex-col items-center text-center mb-4 sm:mb-5">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#f8dfad] via-[#e5b352] to-[#b87c28] border-2 border-[#fff3d4] shadow-[0_4px_16px_rgba(184,124,40,0.35)] flex items-center justify-center mb-2 ring-4 ring-[#eedab4]/40">
+            <span className="text-xl sm:text-2xl drop-shadow-xs">🧭</span>
           </div>
-          <h2 className="font-caacupe text-2xl sm:text-3xl font-black text-[#261509] tracking-wide leading-tight">
+          <h2 className="font-caacupe text-xl sm:text-2xl md:text-3xl font-black text-[#261509] tracking-wide leading-tight">
             {isAuthenticated ? 'Your Account' : (mode === 'login' ? 'Sign In to Future You' : 'Create New Account')}
           </h2>
           <p className="text-xs sm:text-sm font-serif italic text-[#5e3d22] mt-1 max-w-[340px] mx-auto leading-relaxed font-semibold">
@@ -94,74 +94,85 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onNa
 
         {/* Authenticated State: User Profile, Continue, and Sign Out */}
         {isAuthenticated ? (
-          <div className="space-y-4">
-            {/* Clean Explorer Identity Card (Zero Overlaps, Crisp Layout) */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#f5ebd9] border-2 border-[#c4975e]/80 flex items-center gap-4 sm:gap-5 shadow-[inset_0_1px_3px_rgba(255,255,255,0.8),0_6px_20px_rgba(74,46,24,0.12)]">
-              {/* Avatar with Crisp Border — No Bleeding Rings */}
-              <div className="relative w-18 h-18 sm:w-20 sm:h-20 shrink-0 rounded-full border-2 border-[#c4975e] shadow-md bg-[#e8dcce] overflow-hidden">
+          <div className="space-y-3.5 sm:space-y-4">
+            {/* Clean Explorer Identity Card (Zero Overlaps, Strictly Bounded Avatar) */}
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-[#f5ebd9] border-2 border-[#c4975e]/80 flex items-center gap-3.5 sm:gap-4 shadow-[inset_0_1px_3px_rgba(255,255,255,0.8),0_6px_20px_rgba(74,46,24,0.12)]">
+              {/* Avatar with Strict 64px Bounds — Cannot blow out under any layout conditions */}
+              <div 
+                className="relative shrink-0 rounded-full border-2 border-[#c4975e] shadow-md bg-[#e8dcce] overflow-hidden"
+                style={{ width: '64px', height: '64px', minWidth: '64px', minHeight: '64px', maxWidth: '64px', maxHeight: '64px' }}
+              >
                 <img 
-                  src={user.avatarFull || user.avatarThumb} 
-                  alt={user.name} 
-                  className="w-full h-full object-cover"
+                  src={
+                    (user.isCustom && user.customAvatarUrl)
+                      ? user.customAvatarUrl
+                      : (user.avatarThumb || user.avatarFull || 'https://api.dicebear.com/7.x/adventurer/svg?seed=Alex&backgroundColor=b6e3f4')
+                  } 
+                  alt={user.name || 'User Avatar'} 
+                  className="w-full h-full object-cover block"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = 'https://api.dicebear.com/7.x/adventurer/svg?seed=Alex&backgroundColor=b6e3f4';
+                  }}
                 />
-                <span className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-xs" title="Active Session" />
+                <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white shadow-xs" title="Active Session" />
               </div>
 
-              {/* User Identity Details — Clean Spacing, Fully Visible, Zero Collisions */}
-              <div className="flex flex-col justify-center min-w-0 flex-1 space-y-1">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-serif text-xl sm:text-2xl font-black text-[#1e0f06] truncate leading-tight">
+              {/* User Identity Details — Clean Spacing, Fully Visible */}
+              <div className="flex flex-col justify-center min-w-0 flex-1 space-y-0.5">
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="font-serif text-lg sm:text-xl font-black text-[#1e0f06] truncate leading-tight">
                     {user.name}
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-800/15 border border-emerald-700/40 text-emerald-950 text-xs font-sans font-black uppercase tracking-wider shrink-0 shadow-2xs">
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-800/15 border border-emerald-700/40 text-emerald-950 text-[10px] font-sans font-black uppercase tracking-wider shrink-0 shadow-2xs">
                     Active
                   </span>
                 </div>
-                <div className="text-sm font-serif font-bold text-[#6d3910] truncate">
+                <div className="text-xs sm:text-sm font-serif font-bold text-[#6d3910] truncate">
                   {user.title || 'The Mountain Explorer'}
                 </div>
                 <div className="pt-0.5">
-                  <span className="text-xs sm:text-[13px] font-mono text-[#3a2010] font-bold bg-white/95 px-2.5 py-0.5 rounded-md border border-[#c4975e]/50 truncate inline-block max-w-full shadow-2xs">
+                  <span className="text-[11px] sm:text-xs font-mono text-[#3a2010] font-bold bg-white/95 px-2 py-0.5 rounded-md border border-[#c4975e]/50 truncate inline-block max-w-full shadow-2xs">
                     {user.email}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Primary Action: Open My Journal (Luxury Leather Gradient with Gold Foil Trim) */}
+            {/* Primary Action: Open My Journal (Page 2) */}
             <button
               type="button"
               onClick={() => {
                 onClose();
                 if (onNavigateToJournal) onNavigateToJournal();
               }}
-              className="w-full py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-[#241308] via-[#3d2010] to-[#241308] hover:from-[#331c0d] hover:to-[#331c0d] text-[#faedd4] hover:text-[#fff2d6] border-2 border-[#d4af37]/80 shadow-[0_6px_22px_rgba(36,19,8,0.45)] hover:shadow-[0_8px_28px_rgba(36,19,8,0.65)] font-serif font-black text-sm sm:text-base tracking-widest uppercase transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.98]"
+              className="w-full py-3 sm:py-3.5 rounded-full bg-gradient-to-r from-[#241308] via-[#3d2010] to-[#241308] hover:from-[#331c0d] hover:to-[#331c0d] text-[#faedd4] hover:text-[#fff2d6] border-2 border-[#d4af37]/80 shadow-[0_6px_22px_rgba(36,19,8,0.45)] hover:shadow-[0_8px_28px_rgba(36,19,8,0.65)] font-serif font-black text-xs sm:text-sm tracking-widest uppercase transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
             >
               <span>Open My Journal (Page 2)</span>
-              <span className="text-lg">→</span>
+              <span className="text-base">→</span>
             </button>
 
-            {/* Secondary Action: Customize Avatar (Pearl White with Gold Border) */}
+            {/* Secondary Action: Customize Avatar */}
             <button
               type="button"
               onClick={() => {
                 onClose();
                 openCharacterModal();
               }}
-              className="w-full py-2.5 sm:py-3 rounded-full bg-white/95 hover:bg-white text-[#2c180c] border-2 border-[#c5a47e]/80 hover:border-[#8b5a2b] shadow-xs font-serif font-bold text-sm sm:text-base tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.98]"
+              className="w-full py-2.5 rounded-full bg-white/95 hover:bg-white text-[#2c180c] border-2 border-[#c5a47e]/80 hover:border-[#8b5a2b] shadow-xs font-serif font-bold text-xs sm:text-sm tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
             >
-              <span className="text-base">🎨</span>
+              <span className="text-sm">🎨</span>
               <span>Choose Different Avatar</span>
             </button>
 
             {/* Subtle Divider & Sign Out */}
-            <div className="pt-1.5 border-t border-[#8b5a2b]/20 text-center">
+            <div className="pt-1 border-t border-[#8b5a2b]/20 text-center">
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="w-full py-2.5 sm:py-3 rounded-full text-[#991b1b] hover:text-[#7f1d1d] hover:bg-rose-500/10 font-serif font-bold text-sm sm:text-base tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2 border border-rose-300/60 hover:border-rose-400 active:scale-95"
+                className="w-full py-2 rounded-full text-[#991b1b] hover:text-[#7f1d1d] hover:bg-rose-500/10 font-serif font-bold text-xs sm:text-sm tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2 border border-rose-300/60 hover:border-rose-400 active:scale-95"
               >
-                <svg className="w-4 h-4 text-[#991b1b]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <svg className="w-3.5 h-3.5 text-[#991b1b]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
                 </svg>
                 <span>Sign Out of Account</span>

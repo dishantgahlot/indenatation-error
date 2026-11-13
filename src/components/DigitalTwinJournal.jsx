@@ -550,9 +550,9 @@ export default function DigitalTwinJournal({
         </div>
       </div>
 
-      {/* 2. THE BIG OPEN JOURNAL (Desktop Spread >= lg) */}
+      {/* 2. THE BIG OPEN JOURNAL (Desktop Spread >= lg in Landscape) */}
       <div 
-        className="hidden lg:flex relative z-10 w-[96vw] max-w-[1850px] aspect-[1.84/1] max-h-[94vh] items-center justify-center transition-transform duration-500 ease-out"
+        className="hidden lg:landscape:flex relative z-10 w-[96vw] max-w-[1850px] aspect-[1.84/1] max-h-[94vh] items-center justify-center transition-transform duration-500 ease-out"
         style={{
           transform: 'translate3d(calc(var(--mouse-x, 0) * 3px), calc(var(--mouse-y, 0) * 2px), 0)',
         }}
@@ -950,8 +950,8 @@ export default function DigitalTwinJournal({
 
       </div>
 
-      {/* MOBILE JOURNAL VIEW (< lg) */}
-      <div className="lg:hidden relative z-20 w-[94vw] max-w-[430px] sm:max-w-[500px] h-[86dvh] max-h-[740px] bg-[#f7eedc] border-2 border-[#8c6b4f]/70 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col justify-between p-3 sm:p-4 overflow-y-auto parchment-scroll">
+      {/* MOBILE JOURNAL VIEW (< lg or Portrait) */}
+      <div className="lg:landscape:hidden relative z-20 w-[94vw] max-w-[430px] sm:max-w-[500px] h-[86dvh] max-h-[740px] bg-[#f7eedc] border-2 border-[#8c6b4f]/70 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col justify-between p-3 sm:p-4 overflow-y-auto parchment-scroll">
         
         {/* Mobile Header Tabs */}
         <div className="flex items-center justify-center p-1 rounded-full bg-[#ebd8c0]/90 border border-[#8e6e53]/40 mb-2 shrink-0">
@@ -1199,7 +1199,7 @@ export default function DigitalTwinJournal({
       {/* Floating Return Button to smoothly scroll back up to Desk Scene */}
       <div 
         onClick={onScrollToTop}
-        className="hidden lg:block absolute right-3 md:right-5 bottom-2 md:bottom-3 z-30 text-right select-none cursor-pointer group text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)] scale-85 sm:scale-90 md:scale-95 origin-bottom-right"
+        className="hidden lg:landscape:block absolute right-3 md:right-5 bottom-2 md:bottom-3 z-30 text-right select-none cursor-pointer group text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)] scale-85 sm:scale-90 md:scale-95 origin-bottom-right"
         title="Scroll or click to return to desk"
       >
         <div className="text-2xl md:text-3xl lg:text-4xl leading-none font-medium flex items-center justify-end gap-2 group-hover:text-[#f8d789] transition-colors duration-200">

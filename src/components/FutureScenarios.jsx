@@ -1144,8 +1144,8 @@ export default function FutureScenarios({ onScrollToPage3, onScrollToHome, mouse
             </div>
           </div>
 
-          {/* Top Left Badge: 4. Choose Your Journey (Desktop Only) */}
-          <div className="hidden lg:block absolute top-4 sm:top-5 left-4 sm:left-7 z-40 select-none">
+          {/* Top Left Badge: 4. Choose Your Journey (Desktop Landscape Only) */}
+          <div className="hidden lg:landscape:block absolute top-4 sm:top-5 left-4 sm:left-7 z-40 select-none">
             <div className="px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#ebd8c0]/95 backdrop-blur-xs border border-[#cfb696] shadow-[0_4px_12px_rgba(40,20,10,0.25)] flex items-center gap-1.5">
               <span className="font-sans font-black text-xs sm:text-sm text-[#2c180c]">
                 4.
@@ -1156,8 +1156,8 @@ export default function FutureScenarios({ onScrollToPage3, onScrollToHome, mouse
             </div>
           </div>
 
-          {/* Top Center Banner: Choose Your Journey Parchment Scroll Banner (Desktop Only) */}
-          <div className="hidden lg:flex absolute top-2 sm:top-3 left-1/2 -translate-x-1/2 z-40 select-none pointer-events-none flex-col items-center">
+          {/* Top Center Banner: Choose Your Journey Parchment Scroll Banner (Desktop Landscape Only) */}
+          <div className="hidden lg:landscape:flex absolute top-2 sm:top-3 left-1/2 -translate-x-1/2 z-40 select-none pointer-events-none flex-col items-center">
             <div className="relative px-7 sm:px-12 py-2 sm:py-2.5 max-w-[92vw] flex flex-col items-center justify-center">
               {/* Deckled Parchment Scroll Texture */}
               <img 
@@ -1177,9 +1177,9 @@ export default function FutureScenarios({ onScrollToPage3, onScrollToHome, mouse
             </div>
           </div>
 
-          {/* THE BIG OPEN JOURNAL (Desktop Spread >= lg) */}
+          {/* THE BIG OPEN JOURNAL (Desktop Spread >= lg in Landscape) */}
           <div 
-            className="hidden lg:flex relative z-10 w-[96%] max-w-[1850px] aspect-[1.84/1] max-h-[94vh] items-center justify-center transition-transform duration-500 ease-out mt-3 sm:mt-4"
+            className="hidden lg:landscape:flex relative z-10 w-[96%] max-w-[1850px] aspect-[1.84/1] max-h-[94vh] items-center justify-center transition-transform duration-500 ease-out mt-3 sm:mt-4"
             style={{
               transform: 'translate3d(calc(var(--mouse-x, 0) * 3px), calc(var(--mouse-y, 0) * 2px), 0)',
             }}
@@ -1409,8 +1409,8 @@ export default function FutureScenarios({ onScrollToPage3, onScrollToHome, mouse
 
           </div>
 
-        {/* MOBILE JOURNAL VIEW (< lg) */}
-        <div className="lg:hidden relative z-20 w-[94vw] max-w-[440px] sm:max-w-[500px] h-[84vh] max-h-[720px] bg-[#f7eedc] border-2 border-[#8c6b4f]/70 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col justify-between p-3.5 overflow-y-auto parchment-scroll select-none">
+        {/* MOBILE JOURNAL VIEW (< lg or Portrait) */}
+        <div className="lg:landscape:hidden relative z-20 w-[94vw] max-w-[440px] sm:max-w-[500px] h-[84vh] max-h-[720px] bg-[#f7eedc] border-2 border-[#8c6b4f]/70 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col justify-between p-3.5 overflow-y-auto parchment-scroll select-none">
             
             {/* Header */}
             <div className="text-center mb-1 shrink-0">
@@ -1587,8 +1587,8 @@ export default function FutureScenarios({ onScrollToPage3, onScrollToHome, mouse
 
           </div>
 
-          {/* Floating Return Controls at bottom right (Desktop Only) */}
-          <div className="hidden lg:flex absolute right-3.5 sm:right-5 bottom-3 sm:bottom-4 z-40 items-center gap-2 select-none">
+          {/* Floating Return Controls at bottom right (Desktop Landscape Only) */}
+          <div className="hidden lg:landscape:flex absolute right-3.5 sm:right-5 bottom-3 sm:bottom-4 z-40 items-center gap-2 select-none">
             <button
               type="button"
               onClick={onScrollToPage3}

@@ -762,9 +762,9 @@ export default function CurrentYouInsights({ onScrollToPage2, onScrollToHome, mo
         </div>
       </div>
 
-      {/* 3. THE BIG OPEN JOURNAL (Desktop Spread >= lg) */}
+      {/* 3. THE BIG OPEN JOURNAL (Desktop Spread >= lg in Landscape) */}
       <div 
-        className="hidden lg:flex relative z-10 w-[96vw] max-w-[1850px] aspect-[1.84/1] max-h-[94vh] items-center justify-center transition-transform duration-500 ease-out"
+        className="hidden lg:landscape:flex relative z-10 w-[96vw] max-w-[1850px] aspect-[1.84/1] max-h-[94vh] items-center justify-center transition-transform duration-500 ease-out"
         style={{
           transform: 'translate3d(calc(var(--mouse-x, 0) * 3px), calc(var(--mouse-y, 0) * 2px), 0)',
         }}
@@ -1361,8 +1361,8 @@ export default function CurrentYouInsights({ onScrollToPage2, onScrollToHome, mo
 
       </div>
 
-      {/* MOBILE JOURNAL VIEW (< lg) */}
-      <div className="lg:hidden relative z-20 w-[94vw] max-w-[440px] sm:max-w-[500px] h-[84vh] max-h-[720px] bg-[#f7eedc] border-2 border-[#8c6b4f]/70 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col justify-between p-3.5 overflow-y-auto parchment-scroll select-none">
+      {/* MOBILE JOURNAL VIEW (< lg or Portrait) */}
+      <div className="lg:landscape:hidden relative z-20 w-[94vw] max-w-[440px] sm:max-w-[500px] h-[84vh] max-h-[720px] bg-[#f7eedc] border-2 border-[#8c6b4f]/70 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col justify-between p-3.5 overflow-y-auto parchment-scroll select-none">
         
         {/* Mobile Header Tabs */}
         <div className="flex items-center justify-center p-1 rounded-full bg-[#ebd8c0]/90 border border-[#8e6e53]/40 mb-2 shrink-0">
@@ -1638,8 +1638,8 @@ export default function CurrentYouInsights({ onScrollToPage2, onScrollToHome, mo
 
       </div>
 
-      {/* Floating Return Controls (Bottom Right) - Desktop Only */}
-      <div className="hidden lg:flex absolute right-3.5 sm:right-5 bottom-3 sm:bottom-4 z-40 items-center gap-2 select-none">
+      {/* Floating Return Controls (Bottom Right) - Desktop Landscape Only */}
+      <div className="hidden lg:landscape:flex absolute right-3.5 sm:right-5 bottom-3 sm:bottom-4 z-40 items-center gap-2 select-none">
         {onScrollToNext && (
           <button
             type="button"
