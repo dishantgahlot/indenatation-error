@@ -287,8 +287,10 @@ export default function DigitalTwinJournal({
           }
           return m;
         }));
-        if (data.productivity_score !== undefined) {
-          setCurrentScore(hasLogs ? data.productivity_score : 0);
+        // Use lifestyle_score (historical average) as primary, fallback to productivity_score (current day)
+        const scoreToUse = data.lifestyle_score !== undefined ? data.lifestyle_score : data.productivity_score;
+        if (scoreToUse !== undefined) {
+          setCurrentScore(hasLogs ? scoreToUse : 0);
         }
       }
     });
@@ -318,7 +320,9 @@ export default function DigitalTwinJournal({
               }
               return m;
             }));
-            setCurrentScore(hasLogs ? (data.productivity_score || 0) : 0);
+            // Use lifestyle_score (historical average) as primary
+            const scoreToUse = data.lifestyle_score !== undefined ? data.lifestyle_score : data.productivity_score;
+            setCurrentScore(hasLogs ? (scoreToUse || 0) : 0);
           }
         });
         return;
@@ -387,8 +391,12 @@ export default function DigitalTwinJournal({
 
     // Save to Node.js backend
     saveDailyHabits({ ...newValues, is_complete: isDay1Complete }).then(res => {
-      if (res && res.productivity_score !== undefined) {
-        setCurrentScore(res.productivity_score);
+      if (res) {
+        // Use lifestyle_score (historical average) as primary, fallback to productivity_score
+        const scoreToUse = res.lifestyle_score !== undefined ? res.lifestyle_score : res.productivity_score;
+        if (scoreToUse !== undefined) {
+          setCurrentScore(scoreToUse);
+        }
       }
     });
 

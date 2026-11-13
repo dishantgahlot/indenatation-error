@@ -154,9 +154,9 @@ export async function fetchWeeklyCycle() {
   }
 }
 
-export async function fetchStreakData(days = 365) {
+export async function fetchStreakData() {
   try {
-    const res = await authFetch(`${BASE_URL}/habits/streak?days=${days}`);
+    const res = await authFetch(`${BASE_URL}/habits/streak`);
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return await res.json();
   } catch (err) {

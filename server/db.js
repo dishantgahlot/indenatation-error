@@ -41,6 +41,9 @@ const HabitLogMongooseSchema = new mongoose.Schema({
   notes: { type: String, default: '' }
 }, { timestamps: true });
 
+// Compound unique index to enforce one habit log per user per date (upsert behavior)
+HabitLogMongooseSchema.index({ user_id: 1, log_date: 1 }, { unique: true });
+
 let MongooseUser = null;
 let MongooseHabit = null;
 
@@ -351,6 +354,25 @@ class SupabaseDatabase {
     const db = this.readLocal();
     const userLogs = (db.habit_daily_logs || []).filter(l => l.user_id === userId);
     return userLogs.slice(-limit);
+  }
+
+  // Get ALL historical logs for a user (no limit) - used for historical lifestyle score calculation
+  async getAllLogs(userId = 'default_user') {
+    if (this.isConnected && this.pool) {
+      try {
+        const result = await this.pool.query(
+          `SELECT * FROM habit_logs WHERE user_id = $1 ORDER BY log_date ASC`,
+          [userId]
+        );
+        return result.rows;
+      } catch (err) {
+        console.error('[DB-Supabase] Error getting all logs:', err.message);
+      }
+    }
+    // Fallback to local
+    const db = this.readLocal();
+    const userLogs = (db.habit_daily_logs || []).filter(l => l.user_id === userId);
+    return userLogs.sort((a, b) => new Date(a.log_date) - new Date(b.log_date));
   }
 
   async getLatestLog(userId = 'default_user') {
@@ -888,6 +910,43 @@ class UnifiedDatabase {
     const db = this.read();
     const userLogs = (db.habit_daily_logs || []).filter(l => l.user_id === userId);
     return userLogs.slice(-limit);
+  }
+
+  // Get ALL historical logs for a user (no limit) - used for historical lifestyle score calculation
+  async getAllLogs(userId = 'default_user') {
+    // Try Supabase first
+    if ((this.dbMode === 'supabase' || this.supabaseDb?.pool) && this.supabaseDb) {
+      try {
+        if (this.supabaseDb.pool) {
+          const result = await this.supabaseDb.pool.query(
+            `SELECT * FROM habit_logs WHERE user_id = $1 ORDER BY log_date ASC`,
+            [userId]
+          );
+          if (result.rows.length > 0) {
+            return result.rows;
+          }
+        }
+      } catch (err) {
+        console.error('[DB] Supabase getAllLogs error:', err.message);
+      }
+    }
+
+    // Try MongoDB
+    if (this.dbMode === 'mongodb' && this.isMongoConnected && MongooseHabit) {
+      try {
+        const logs = await MongooseHabit.find({ user_id: userId })
+          .sort({ log_date: 1 })
+          .lean();
+        return logs;
+      } catch (err) {
+        console.error('[DB] MongoDB getAllLogs error:', err.message);
+      }
+    }
+
+    // Fallback to local JSON - return all this user's logs
+    const db = this.read();
+    const userLogs = (db.habit_daily_logs || []).filter(l => l.user_id === userId);
+    return userLogs.sort((a, b) => new Date(a.log_date) - new Date(b.log_date));
   }
 
   async getLatestLog(userId = 'default_user') {

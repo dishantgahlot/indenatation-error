@@ -237,7 +237,7 @@ export default function CurrentYouInsights({ onScrollToPage2, onScrollToHome, mo
     };
   }, [user?.id]);
 
-  // Calculate Productivity Score (0 - 100)
+  // Calculate Productivity Score (0 - 100) - Now uses historical Lifestyle Score from backend
   const computedScore = (() => {
     try {
       const scoreKey = user?.id ? `future_you_${user.id}_lifestyle_score` : 'future_you_lifestyle_score';
@@ -255,7 +255,8 @@ export default function CurrentYouInsights({ onScrollToPage2, onScrollToHome, mo
     return Math.round(sleepScore * 0.3 + studyScore * 0.4 + screenScore * 0.3);
   })();
 
-  const productivityScore = backendCycleData?.productivity_score ?? computedScore;
+  // Use backend's historical Lifestyle Score as primary, fall back to computed local score
+  const productivityScore = backendCycleData?.lifestyle_score ?? backendCycleData?.productivity_score ?? computedScore;
 
   // 1. Five Habit Indicators matching the 5 habits in Habit Breakdown
   const habitIndicators = [

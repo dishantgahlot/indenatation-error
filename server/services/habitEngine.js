@@ -2,7 +2,7 @@ import { db } from '../db.js';
 
 export class HabitEngine {
   /**
-   * Calculates a weighted productivity score (0-100):
+   * Calculates a weighted productivity score (0-100) for a single day's values:
    * - Sleep (25%): Optimal at 8.0h. Penalty for deficit or excess.
    * - Study (30%): Target 4.0h. Direct cognitive productivity.
    * - Screen (20%): Limit <= 5.0h. Distraction decay.
@@ -51,6 +51,60 @@ export class HabitEngine {
     );
 
     return Math.min(100, Math.max(0, Math.round(weighted)));
+  }
+
+  /**
+   * Calculates the Lifestyle Score using historical average of all logged days.
+   * This represents the user's overall lifestyle pattern across their entire history.
+   * @param {Array} logs - Array of habit log objects with sleep, study, screen, exercise, spending, hydration
+   * @returns {Object} { score, averages, totalDaysLogged }
+   */
+  static calculateLifestyleScore(logs) {
+    if (!logs || logs.length === 0) {
+      return {
+        score: 0,
+        averages: { sleep: 0, study: 0, screen: 0, exercise: 0, spending: 0, hydration: 0 },
+        totalDaysLogged: 0
+      };
+    }
+
+    // Calculate averages across all logged days
+    const count = logs.length;
+    const sleepAvg = logs.reduce((sum, l) => sum + Number(l.sleep || 0), 0) / count;
+    const studyAvg = logs.reduce((sum, l) => sum + Number(l.study || 0), 0) / count;
+    const screenAvg = logs.reduce((sum, l) => sum + Number(l.screen || 0), 0) / count;
+    const exerciseAvg = logs.reduce((sum, l) => sum + Number(l.exercise || 0), 0) / count;
+    const spendingAvg = logs.reduce((sum, l) => sum + Number(l.spending || 0), 0) / count;
+    const hydrationAvg = logs.reduce((sum, l) => sum + Number(l.hydration || 0), 0) / count;
+
+    // Calculate score using the existing formula with averaged values
+    const score = HabitEngine.calculateProductivityScore(
+      sleepAvg, studyAvg, screenAvg, exerciseAvg, spendingAvg
+    );
+
+    return {
+      score,
+      averages: {
+        sleep: Math.round(sleepAvg * 10) / 10,
+        study: Math.round(studyAvg * 10) / 10,
+        screen: Math.round(screenAvg * 10) / 10,
+        exercise: Math.round(exerciseAvg * 10) / 10,
+        spending: Math.round(spendingAvg * 10) / 10,
+        hydration: Math.round(hydrationAvg * 10) / 10
+      },
+      totalDaysLogged: count
+    };
+  }
+
+  /**
+   * Calculates Potential Score - the maximum achievable score if user hits all targets.
+   * Based on the lifestyle score formula with optimal values.
+   * @returns {number} Potential score (0-100)
+   */
+  static calculatePotentialScore() {
+    // Optimal values: Sleep 8h, Study 4h, Screen 0h (or <=5h), Exercise 1h, Spending 0 (or <=600)
+    // Using the same formula with ideal values
+    return HabitEngine.calculateProductivityScore(8.0, 4.0, 0, 1.0, 0);
   }
 
   static getStatusBadge(score) {
@@ -110,21 +164,22 @@ export class HabitEngine {
   }
 
   /**
-   * Calculates streak data for a user - only counts days where all six factors are completed
+   * Calculates streak data for a user - tracks both logged days and completed days
    * @param {string} userId - User ID
-   * @param {number} days - Number of days to look back (default: 365 for full year)
-   * @returns {Object} Streak data including current streak, longest streak, total days logged
+   * @returns {Object} Streak data including current streak, longest streak, logged days, completed days
    */
-  static async getStreakData(userId = 'default_user', days = 365) {
-    const rawLogs = await db.getRecentLogs(days, userId);
+  static async getStreakData(userId = 'default_user') {
+    // Get ALL historical logs (no limit) for accurate streak calculation
+    const rawLogs = await db.getAllLogs(userId);
 
     if (!rawLogs || rawLogs.length === 0) {
       return {
         currentStreak: 0,
         longestStreak: 0,
-        totalDaysLogged: 0,
+        totalDaysLogged: 0,      // Unique dates with ANY habit entry
+        completedDaysLogged: 0,  // Unique dates with ALL 6 factors complete
         lastLoggedDate: null,
-        streakStatus: 'none', // 'active', 'broken', 'none'
+        streakStatus: 'none',    // 'active', 'broken', 'none'
         todayLogged: false,
         isCompletedDay: false,
         completedFactorsCount: 0
@@ -134,46 +189,35 @@ export class HabitEngine {
     const latestLog = rawLogs[rawLogs.length - 1];
     const completedFactorsCount = HabitEngine.getCompletedFactorsCount(latestLog);
 
+    // All unique logged dates (Logged Days - any entry)
+    const allLoggedDates = new Set(rawLogs.map(log => log.log_date));
+    const totalDaysLogged = allLoggedDates.size;
+
     // Filter to ONLY completed logs where all six factors are completed
-    const logs = rawLogs.filter(HabitEngine.isLogComplete);
+    const completedLogs = rawLogs.filter(HabitEngine.isLogComplete);
 
-    if (!logs || logs.length === 0) {
-      return {
-        currentStreak: 0,
-        longestStreak: 0,
-        totalDaysLogged: 0,
-        lastLoggedDate: null,
-        streakStatus: 'none',
-        todayLogged: false,
-        isCompletedDay: false,
-        completedFactorsCount
-      };
-    }
-
-    // Sort logs by date ascending
-    const sortedLogs = [...logs].sort((a, b) => new Date(a.log_date) - new Date(b.log_date));
-
-    // Get unique logged dates
-    const loggedDates = new Set(sortedLogs.map(log => log.log_date));
-    const totalDaysLogged = loggedDates.size;
+    // Unique completed dates (Completed Days - all 6 factors)
+    const completedLoggedDates = new Set(completedLogs.map(log => log.log_date));
+    const completedDaysLogged = completedLoggedDates.size;
 
     // Get today's date string
     const today = new Date().toISOString().split('T')[0];
     const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
-    // Check if today is logged and completed
-    const todayLogged = loggedDates.has(today);
+    // Check if today is logged (any entry) and completed (all 6 factors)
+    const todayLogged = allLoggedDates.has(today);
+    const todayCompleted = completedLoggedDates.has(today);
 
-    // Calculate current streak
+    // Calculate current streak based on COMPLETED days (consecutive days with all 6 factors)
     let currentStreak = 0;
     let streakStatus = 'none';
 
-    if (todayLogged || loggedDates.has(yesterday)) {
-      // Start from today if logged, otherwise from yesterday
-      let checkDate = todayLogged ? today : yesterday;
+    if (todayCompleted || completedLoggedDates.has(yesterday)) {
+      // Start from today if completed, otherwise from yesterday
+      let checkDate = todayCompleted ? today : yesterday;
       let streak = 0;
 
-      while (loggedDates.has(checkDate)) {
+      while (completedLoggedDates.has(checkDate)) {
         streak++;
         // Move to previous day
         const prevDate = new Date(checkDate);
@@ -182,15 +226,16 @@ export class HabitEngine {
       }
 
       currentStreak = streak;
-      streakStatus = todayLogged ? 'active' : 'broken';
+      streakStatus = todayCompleted ? 'active' : 'broken';
     }
 
-    // Calculate longest streak
+    // Calculate longest streak based on COMPLETED days
+    const sortedCompletedLogs = [...completedLogs].sort((a, b) => new Date(a.log_date) - new Date(b.log_date));
     let longestStreak = 0;
     let tempStreak = 0;
     let prevDate = null;
 
-    for (const log of sortedLogs) {
+    for (const log of sortedCompletedLogs) {
       const logDate = log.log_date;
 
       if (prevDate === null) {
@@ -210,17 +255,19 @@ export class HabitEngine {
     }
     longestStreak = Math.max(longestStreak, tempStreak);
 
-    // Get last logged date
-    const lastLoggedDate = sortedLogs[sortedLogs.length - 1]?.log_date || null;
+    // Get last logged date (any entry)
+    const sortedRawLogs = [...rawLogs].sort((a, b) => new Date(a.log_date) - new Date(b.log_date));
+    const lastLoggedDate = sortedRawLogs[sortedRawLogs.length - 1]?.log_date || null;
 
     return {
       currentStreak,
       longestStreak,
-      totalDaysLogged,
+      totalDaysLogged,       // Logged Days: unique dates with any habit entry
+      completedDaysLogged,   // Completed Days: unique dates with all 6 factors
       lastLoggedDate,
       streakStatus,
       todayLogged,
-      isCompletedDay: todayLogged,
+      isCompletedDay: todayCompleted,
       completedFactorsCount
     };
   }
@@ -336,15 +383,11 @@ export class HabitEngine {
     const latestSpending = Number(latestLog.spending !== undefined ? latestLog.spending : 280);
     const latestHydration = Number(latestLog.hydration !== undefined ? latestLog.hydration : 2.0);
 
-    const prodScore = this.calculateProductivityScore(
-      latestSleep,
-      latestStudy,
-      latestScreen,
-      latestExercise,
-      latestSpending
-    );
+    // Calculate Lifestyle Score using historical averages
+    const lifestyleData = HabitEngine.calculateLifestyleScore(logs);
+    const prodScore = lifestyleData.score;
 
-    const statusBadge = this.getStatusBadge(prodScore);
+    const statusBadge = HabitEngine.getStatusBadge(prodScore);
 
     const habitsList = [
       { id: 'sleep', label: 'Sleep', value: `${latestSleep.toFixed(1)}h`, color: '#5568ba', data: seriesData.sleep },
@@ -390,7 +433,12 @@ export class HabitEngine {
         spending: latestSpending,
         hydration: latestHydration
       },
-      total_logs: count
+      total_logs: count,
+      // New fields for historical tracking
+      lifestyle_score: lifestyleData.score,
+      lifestyle_averages: lifestyleData.averages,
+      total_days_logged: lifestyleData.totalDaysLogged,
+      potential_score: HabitEngine.calculatePotentialScore()
     };
   }
 }

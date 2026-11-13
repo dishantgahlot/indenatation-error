@@ -7,12 +7,17 @@ import logger from '../utils/logger.js';
 
 const router = express.Router();
 
-// GET /api/habits/current
+// GET /api/habits/current - Returns current day's data + historical Lifestyle Score
 router.get('/current', optionalAuth, async (req, res) => {
   try {
     const userId = req.userId !== 'guest' ? req.userId : (req.query.userId || req.userId);
+
+    // Get latest log for current day's metrics
     const latest = await db.getLatestLog(userId);
-    // Return zeros when no data logged yet
+    // Get ALL historical logs for Lifestyle Score calculation
+    const allLogs = await db.getAllLogs(userId);
+
+    // Current day's metrics (for display in gauges)
     const sleep = latest ? Number(latest.sleep) : 0;
     const study = latest ? Number(latest.study) : 0;
     const screen = latest ? Number(latest.screen) : 0;
@@ -20,8 +25,11 @@ router.get('/current', optionalAuth, async (req, res) => {
     const spending = latest ? Number(latest.spending) : 0;
     const hydration = latest ? Number(latest.hydration) : 0;
 
-    const score = HabitEngine.calculateProductivityScore(sleep, study, screen, exercise, spending);
-    const statusLabel = HabitEngine.getStatusBadge(score);
+    // Calculate Lifestyle Score using HISTORICAL AVERAGES
+    const lifestyleData = HabitEngine.calculateLifestyleScore(allLogs);
+    const lifestyleScore = lifestyleData.score;
+    const statusLabel = HabitEngine.getStatusBadge(lifestyleScore);
+    const potentialScore = HabitEngine.calculatePotentialScore();
 
     const metrics = [
       {
@@ -119,8 +127,15 @@ router.get('/current', optionalAuth, async (req, res) => {
     res.json({
       user_id: userId,
       log_date: latest ? latest.log_date : new Date().toISOString().split('T')[0],
-      productivity_score: score,
+      // Current day's productivity score (for reference)
+      productivity_score: HabitEngine.calculateProductivityScore(sleep, study, screen, exercise, spending),
+      // NEW: Historical Lifestyle Score (main score shown to user)
+      lifestyle_score: lifestyleScore,
       status_label: statusLabel,
+      // Historical averages and tracking
+      lifestyle_averages: lifestyleData.averages,
+      total_days_logged: lifestyleData.totalDaysLogged,
+      potential_score: potentialScore,
       metrics
     });
   } catch (err) {
@@ -241,8 +256,8 @@ router.post('/clear', optionalAuth, async (req, res) => {
 router.get('/streak', optionalAuth, async (req, res) => {
   try {
     const userId = req.userId !== 'guest' ? req.userId : (req.query.userId || req.userId);
-    const days = parseInt(req.query.days) || 365;
-    const streakData = await HabitEngine.getStreakData(userId, days);
+    // getStreakData now fetches ALL logs internally for accurate streak calculation
+    const streakData = await HabitEngine.getStreakData(userId);
     res.json({
       user_id: userId,
       ...streakData

@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        landscape: { raw: '(orientation: landscape)' },
+      },
       fontFamily: {
         caacupe: ['"Caacupe One"', 'serif'],
         handwriting: ['"Caveat"', 'cursive'],
