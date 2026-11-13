@@ -66,12 +66,13 @@ class SupabaseDatabase {
 
     try {
       console.log('🔄 [DB] Connecting to Supabase/PostgreSQL via DATABASE_URL...');
+      const isLocalhost = databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1');
       this.pool = new Pool({
         connectionString: databaseUrl,
-        ssl: databaseUrl.includes('supabase.co') ? { rejectUnauthorized: false } : false,
-        max: 10,
+        ssl: isLocalhost ? false : { rejectUnauthorized: false },
+        max: isServerless ? 2 : 10,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000,
+        connectionTimeoutMillis: 8000,
       });
 
       // Prevent uncaught errors from crashing Node process when DB host is unreachable
