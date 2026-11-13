@@ -1,0 +1,100 @@
+{
+  "scenarios": [
+    {
+      "id": "scenario_1_baseline",
+      "name": "Scenario 1: Baseline Everyday Struggle",
+      "tagline": "Fragmented sleep, rising screen time, and slipping momentum",
+      "projected_score": 45,
+      "badge": "✦ Balanced Potential",
+      "summary": {
+        "avg_sleep": 5.5,
+        "avg_study": 2.2,
+        "avg_screen": 7.5,
+        "avg_exercise": 0.3,
+        "avg_spending": 420,
+        "avg_hydration": 1.6
+      },
+      "weekly_logs": [
+        { "day_name": "Mon", "sleep": 6.0, "study": 3.0, "screen": 6.5, "exercise": 0.5, "spending": 350, "hydration": 1.8, "notes": "Started the week with good intentions but tired" },
+        { "day_name": "Tue", "sleep": 5.8, "study": 2.5, "screen": 7.0, "exercise": 0.4, "spending": 400, "hydration": 1.5, "notes": "Evening scrolling past midnight" },
+        { "day_name": "Wed", "sleep": 5.2, "study": 2.8, "screen": 7.5, "exercise": 0.2, "spending": 380, "hydration": 1.6, "notes": "Mid-week fatigue setting in" },
+        { "day_name": "Thu", "sleep": 5.0, "study": 1.8, "screen": 8.0, "exercise": 0.0, "spending": 450, "hydration": 1.4, "notes": "Skipped workout due to exhaustion" },
+        { "day_name": "Fri", "sleep": 5.5, "study": 1.5, "screen": 8.5, "exercise": 0.2, "spending": 580, "hydration": 1.5, "notes": "Late night binge watching" },
+        { "day_name": "Sat", "sleep": 6.2, "study": 2.0, "screen": 8.2, "exercise": 0.5, "spending": 480, "hydration": 1.8, "notes": "Weekend catchup sleep failed" },
+        { "day_name": "Sun", "sleep": 5.2, "study": 2.1, "screen": 7.8, "exercise": 0.3, "spending": 280, "hydration": 1.5, "notes": "Sunday anxiety and preparation" }
+      ]
+    },
+    {
+      "id": "scenario_2_burnout",
+      "name": "Scenario 2: Severe Burnout & Doomscrolling Crisis",
+      "tagline": "Extreme sleep deprivation, 10h+ screen time, zero fitness",
+      "projected_score": 18,
+      "badge": "⚠ High Habit Drift",
+      "summary": {
+        "avg_sleep": 3.9,
+        "avg_study": 0.9,
+        "avg_screen": 10.3,
+        "avg_exercise": 0.05,
+        "avg_spending": 920,
+        "avg_hydration": 1.1
+      },
+      "weekly_logs": [
+        { "day_name": "Mon", "sleep": 4.5, "study": 1.5, "screen": 9.2, "exercise": 0.2, "spending": 650, "hydration": 1.3, "notes": "Brain fog from morning alarm" },
+        { "day_name": "Tue", "sleep": 4.0, "study": 1.0, "screen": 9.8, "exercise": 0.0, "spending": 820, "hydration": 1.0, "notes": "Endless TikTok & Reels loop" },
+        { "day_name": "Wed", "sleep": 3.8, "study": 0.8, "screen": 10.5, "exercise": 0.0, "spending": 950, "hydration": 1.2, "notes": "Caffeine crash, zero focus" },
+        { "day_name": "Thu", "sleep": 3.5, "study": 0.5, "screen": 11.0, "exercise": 0.0, "spending": 1100, "hydration": 0.9, "notes": "Retail therapy online ordering" },
+        { "day_name": "Fri", "sleep": 3.2, "study": 0.4, "screen": 11.5, "exercise": 0.0, "spending": 1250, "hydration": 1.0, "notes": "Sleepless night until 5 AM" },
+        { "day_name": "Sat", "sleep": 4.2, "study": 0.8, "screen": 10.8, "exercise": 0.0, "spending": 980, "hydration": 1.1, "notes": "Bedridden scrolling all afternoon" },
+        { "day_name": "Sun", "sleep": 4.0, "study": 1.0, "screen": 9.5, "exercise": 0.1, "spending": 720, "hydration": 1.2, "notes": "Deep burnout and mental exhaustion" }
+      ]
+    },
+    {
+      "id": "scenario_3_exam_crunch",
+      "name": "Scenario 3: Exam Crunch & Academic Sprint",
+      "tagline": "Intense 7h study marathons, low screen time, but sleep sacrifice",
+      "projected_score": 72,
+      "badge": "✦ Balanced Potential",
+      "summary": {
+        "avg_sleep": 5.8,
+        "avg_study": 6.8,
+        "avg_screen": 2.4,
+        "avg_exercise": 0.4,
+        "avg_spending": 220,
+        "avg_hydration": 2.3
+      },
+      "weekly_logs": [
+        { "day_name": "Mon", "sleep": 6.2, "study": 6.5, "screen": 2.8, "exercise": 0.5, "spending": 250, "hydration": 2.2, "notes": "Library deep focus session" },
+        { "day_name": "Tue", "sleep": 6.0, "study": 7.0, "screen": 2.2, "exercise": 0.4, "spending": 210, "hydration": 2.4, "notes": "Problem sets completed" },
+        { "day_name": "Wed", "sleep": 5.5, "study": 7.5, "screen": 2.0, "exercise": 0.3, "spending": 190, "hydration": 2.5, "notes": "Practice exams locked in" },
+        { "day_name": "Thu", "sleep": 5.2, "study": 8.0, "screen": 2.1, "exercise": 0.2, "spending": 240, "hydration": 2.1, "notes": "Late night revision cram" },
+        { "day_name": "Fri", "sleep": 5.8, "study": 6.5, "screen": 2.5, "exercise": 0.4, "spending": 220, "hydration": 2.2, "notes": "Memorization & flashcards" },
+        { "day_name": "Sat", "sleep": 6.5, "study": 5.8, "screen": 3.0, "exercise": 0.6, "spending": 260, "hydration": 2.3, "notes": "Review and peer group study" },
+        { "day_name": "Sun", "sleep": 5.6, "study": 6.5, "screen": 2.2, "exercise": 0.4, "spending": 180, "hydration": 2.4, "notes": "Final preparation review" }
+      ]
+    },
+    {
+      "id": "scenario_4_achiever",
+      "name": "Scenario 4: High-Performance Compound Growth",
+      "tagline": "8h restorative sleep, 5h deep work, 1h fitness, financial discipline",
+      "projected_score": 96,
+      "badge": "✦ Optimal Momentum",
+      "summary": {
+        "avg_sleep": 8.1,
+        "avg_study": 5.2,
+        "avg_screen": 2.0,
+        "avg_exercise": 1.4,
+        "avg_spending": 180,
+        "avg_hydration": 3.1
+      },
+      "weekly_logs": [
+        { "day_name": "Mon", "sleep": 8.0, "study": 5.0, "screen": 2.2, "exercise": 1.3, "spending": 190, "hydration": 3.0, "notes": "Morning workout, uninterrupted deep work" },
+        { "day_name": "Tue", "sleep": 8.2, "study": 5.5, "screen": 1.8, "exercise": 1.5, "spending": 160, "hydration": 3.2, "notes": "High cognitive flow and hydration" },
+        { "day_name": "Wed", "sleep": 8.0, "study": 5.2, "screen": 2.0, "exercise": 1.2, "spending": 210, "hydration": 3.0, "notes": "Consistent sleep schedule maintained" },
+        { "day_name": "Thu", "sleep": 8.3, "study": 5.0, "screen": 1.9, "exercise": 1.4, "spending": 170, "hydration": 3.1, "notes": "All priorities completed by 6 PM" },
+        { "day_name": "Fri", "sleep": 8.1, "study": 4.8, "screen": 2.4, "exercise": 1.5, "spending": 230, "hydration": 3.0, "notes": "Reflective review, zero burnout" },
+        { "day_name": "Sat", "sleep": 8.4, "study": 5.5, "screen": 2.1, "exercise": 1.6, "spending": 180, "hydration": 3.2, "notes": "Active recovery run and project sprint" },
+        { "day_name": "Sun", "sleep": 8.0, "study": 5.0, "screen": 1.8, "exercise": 1.2, "spending": 140, "hydration": 3.2, "notes": "Calm weekly review and optimal reset" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+# ==============================================================================
+# Future You — Git Ignore Configuration
+# Only essential source code & assets are tracked for GitHub & Vercel deployment
+# ==============================================================================
+
+# 1. Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# 2. Production Build Outputs
+dist/
+dist-ssr/
+build/
+.vercel/
+
+# 3. Environment & Secret Credentials
+.env
+.env.local
+.env.*.local
+*.pem
+
+# 4. Local Database & State (Contains local test hashes & emails)
+server/data/store.json
+server/data/*.json
+!server/data/.gitkeep
+
+# 5. Logs & Debug Dumps
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+server.log
+llm_debug.txt
+debug/
+
+# 6. Temporary Scratch & Testing Directories
+scratch/
+scripts/
+datasets/
+.test_*
+
+# 7. Loose Root Images & Screenshots (Captured during debugging & dev)
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
+/*.gif
+/*.bmp
+/*.svg
+
+# But ALWAYS track essential web assets and fonts in public and src:
+!public/
+!public/**
+!src/
+!src/**
+
+# 8. OS and Editor Metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
